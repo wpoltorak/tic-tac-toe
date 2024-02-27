@@ -28,8 +28,8 @@ import { useState } from 'react';
 function Board() {
   const [squares, setSquares] = useState(Array(9).fill(null));
   const [xIsNext, setXIsNext] = useState(true);
-
-
+  const winner = calculateWinner();
+  let status = winner ? "Winner: " + winner : "Next player: " + (xIsNext ? "X" : "O");
   function handleClick(index) {
     if (squares[index] || calculateWinner(squares)) {
       return;
@@ -65,6 +65,7 @@ function Board() {
 
   return (
     <>
+      <div className="status">{status}</div>
       <div className="board-row">
         <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
         <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
