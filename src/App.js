@@ -2,65 +2,56 @@
 import './App.css';
 import { useState } from 'react';
 
-/*function App() {
+function Game() {
+  const [history, setHistory] = useState([Array(9).fill(null)]);
+  const [currentMove, setCurrentMove] = useState(0);
+  const [xIsNext, setXIsNext] = useState(true);
+  const currentSquares = history[currentMove];
+
+  function handlePlay(newSquares) {
+    setHistory([...history.slice(0, currentMove + 1), newSquares]);
+    setCurrentMove(history.length - 1);
+    setXIsNext(!xIsNext);
+  }
+
+  function jumpTo(move) {
+    setCurrentMove(move);
+    setXIsNext(move % 2 === 0);
+  }
+
+  const moves = history.map((squares, move) => {
+    let description = (move > 0 ? 'Go to move #' + move : 'Go to game start');
+    return <li key={move}><button onClick={() => jumpTo(move)}>{description}</button></li>
+  }
+
+  );
+
   return (
-    /*
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <div className="game">
+        <div className="game-baord">
+          <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
+        </div>
+        <div className="game-info">
+          <ol>{moves}</ol>
+        </div>
+      </div>
+    </>
   );
 }
-*/
 
-function Board() {
-  const [squares, setSquares] = useState(Array(9).fill(null));
-  const [xIsNext, setXIsNext] = useState(true);
-  const winner = calculateWinner();
+function Board({ xIsNext, squares, onPlay }) {
+
+  const winner = calculateWinner(squares);
   let status = winner ? "Winner: " + winner : "Next player: " + (xIsNext ? "X" : "O");
+
   function handleClick(index) {
     if (squares[index] || calculateWinner(squares)) {
       return;
     }
     const newSquares = squares.slice();
     newSquares[index] = xIsNext ? 'X' : 'O';
-    setXIsNext(!xIsNext);
-    setSquares(newSquares)
-
-  }
-
-  function calculateWinner() {
-    const lines = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6]
-    ]
-
-    for (let i = 0; i < lines.length; i++) {
-      const [a, b, c] = lines[i];
-
-      if (squares[a] && squares[a] === squares[b] && squares[b] === squares[c]) {
-        return squares[a];
-      }
-    }
-    return null;
+    onPlay(newSquares);
   }
 
   return (
@@ -86,13 +77,33 @@ function Board() {
 }
 
 function Square({ value, onSquareClick }) {
-
-
-
   return (
     <>
       <button className="square" onClick={onSquareClick}>{value}</button>
     </>
   );
 }
-export default Board;
+
+function calculateWinner(squares) {
+  const lines = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6]
+  ];
+
+  for (let i = 0; i < lines.length; i++) {
+    const [a, b, c] = lines[i];
+
+    if (squares[a] && squares[a] === squares[b] && squares[b] === squares[c]) {
+      return squares[a];
+    }
+  }
+  return null;
+}
+
+export default Game;
