@@ -9,8 +9,9 @@ function Game() {
   const currentSquares = history[currentMove];
 
   function handlePlay(newSquares) {
-    setHistory([...history.slice(0, currentMove + 1), newSquares]);
-    setCurrentMove(history.length - 1);
+    const nextHistory = [...history.slice(0, currentMove + 1), newSquares];
+    setHistory(nextHistory);
+    setCurrentMove(nextHistory.length - 1);
     setXIsNext(!xIsNext);
   }
 
@@ -21,7 +22,7 @@ function Game() {
 
   const moves = history.map((squares, move) => {
     let description = (move > 0 ? 'Go to move #' + move : 'Go to game start');
-    return <li key={move}><button onClick={() => jumpTo(move)}>{description}</button></li>
+    return (<li key={move}><button onClick={() => jumpTo(move)}>{description}</button></li>);
   }
 
   );
