@@ -3,21 +3,21 @@ import './App.css';
 import { useState } from 'react';
 
 function Game() {
-  const [history, setHistory] = useState([Array(9).fill(null)]);
+  const boardSize = 3;
+  const [history, setHistory] = useState([Array(boardSize * boardSize).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0);
-  const [xIsNext, setXIsNext] = useState(true);
+  const xIsNext = currentMove % 2 === 0;
   const currentSquares = history[currentMove];
+
 
   function handlePlay(newSquares) {
     const nextHistory = [...history.slice(0, currentMove + 1), newSquares];
     setHistory(nextHistory);
     setCurrentMove(nextHistory.length - 1);
-    setXIsNext(!xIsNext);
   }
 
   function jumpTo(move) {
     setCurrentMove(move);
-    setXIsNext(move % 2 === 0);
   }
 
   const moves = history.map((squares, move) => {
@@ -26,12 +26,11 @@ function Game() {
   }
 
   );
-
   return (
     <>
       <div className="game">
         <div className="game-baord">
-          <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
+          <Board size={boardSize} xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
         </div>
         <div className="game-info">
           <ol>{moves}</ol>
@@ -41,7 +40,7 @@ function Game() {
   );
 }
 
-function Board({ xIsNext, squares, onPlay }) {
+function Board({ size, xIsNext, squares, onPlay }) {
 
   const winner = calculateWinner(squares);
   let status = winner ? "Winner: " + winner : "Next player: " + (xIsNext ? "X" : "O");
@@ -55,24 +54,20 @@ function Board({ xIsNext, squares, onPlay }) {
     onPlay(newSquares);
   }
 
+  const group = (items, n) => items.reduce((acc, x, i) => {
+    const idx = Math.floor(i / n);
+    acc[idx] = [...(acc[idx] || []), x];
+    return acc;
+  }, []);
+
   return (
     <>
       <div className="status">{status}</div>
-      <div className="board-row">
-        <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
-        <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
-        <Square value={squares[2]} onSquareClick={() => handleClick(2)} />
-      </div>
-      <div className="board-row">
-        <Square value={squares[3]} onSquareClick={() => handleClick(3)} />
-        <Square value={squares[4]} onSquareClick={() => handleClick(4)} />
-        <Square value={squares[5]} onSquareClick={() => handleClick(5)} />
-      </div>
-      <div className="board-row">
-        <Square value={squares[6]} onSquareClick={() => handleClick(6)} />
-        <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
-        <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
-      </div>
+      {group(squares, size).map((rows, index) =>
+        <div key={index} className="board-row">
+          {rows.map((square, i) => <Square key={i + index * size} value={square} onSquareClick={() => handleClick(i + index * size)} />)}
+        </div>
+      )}
     </>
   );
 }
