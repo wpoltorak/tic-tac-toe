@@ -58,7 +58,9 @@ function Game() {
 function Board({ size, xIsNext, squares, onPlay }) {
 
   const winner = calculateWinner(squares);
-  let status = winner ? "Winner: " + winner : "Next player: " + (xIsNext ? "X" : "O");
+  const nextPlayer = "Next player: " + (xIsNext ? "X" : "O");
+  const winnerPlayer = "Winner: " + (xIsNext ? "O" : "X");
+  let status = winner ? (winner[0] ? winnerPlayer : "It's a draw!") : nextPlayer;
 
   function handleClick(index) {
     if (squares[index] || calculateWinner(squares)) {
@@ -80,17 +82,18 @@ function Board({ size, xIsNext, squares, onPlay }) {
       <div className="status">{status}</div>
       {group(squares, size).map((rows, index) =>
         <div key={index} className="board-row">
-          {rows.map((square, i) => <Square key={i + index * size} value={square} onSquareClick={() => handleClick(i + index * size)} />)}
+          {rows.map((square, i) => <Square winner={winner && winner.includes(i + index * size)} key={i + index * size} value={square} onSquareClick={() => handleClick(i + index * size)} />)}
         </div>
       )}
     </>
   );
 }
 
-function Square({ value, onSquareClick }) {
+function Square({ value, onSquareClick, winner = false }) {
+  let squareClass = winner ? "winner square" : "square";
   return (
     <>
-      <button className="square" onClick={onSquareClick}>{value}</button>
+      <button className={squareClass} onClick={onSquareClick}>{value}</button>
     </>
   );
 }
@@ -106,15 +109,17 @@ function calculateWinner(squares) {
     [0, 4, 8],
     [2, 4, 6]
   ];
-
+  let unfinished = false;
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
-
+    if (!squares[a] || !squares[b] || !squares[b]) {
+      unfinished = true;
+    }
     if (squares[a] && squares[a] === squares[b] && squares[b] === squares[c]) {
-      return squares[a];
+      return [true, a, b, c];
     }
   }
-  return null;
+  return unfinished ? null : [false];
 }
 
 export default Game;
