@@ -6,9 +6,9 @@ function Game() {
   const boardSize = 3;
   const [history, setHistory] = useState([Array(boardSize * boardSize).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0);
+  const [sortDescending, setSortDescending] = useState(false);
   const xIsNext = currentMove % 2 === 0;
   const currentSquares = history[currentMove];
-
 
   function handlePlay(newSquares) {
     const nextHistory = [...history.slice(0, currentMove + 1), newSquares];
@@ -20,12 +20,18 @@ function Game() {
     setCurrentMove(move);
   }
 
+  function handleSort() {
+    const sort = !sortDescending;
+    setSortDescending(sort);
+  }
+
   const moves = history.map((squares, move) => {
     let description = (move > 0 ? 'Go to move #' + move : 'Go to game start');
     return (<li key={move}><button onClick={() => jumpTo(move)}>{description}</button></li>);
-  }
+  });
 
-  );
+
+  const sort = sortDescending ? "Sort ascending" : "Sort descending";
   return (
     <>
       <div className="game">
@@ -33,7 +39,8 @@ function Game() {
           <Board size={boardSize} xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
         </div>
         <div className="game-info">
-          <ol>{moves}</ol>
+          <button onClick={handleSort}>{sort}</button>
+          <ol>{sortDescending ? moves.slice().reverse() : moves}</ol>
         </div>
       </div>
     </>
