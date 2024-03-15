@@ -2,16 +2,18 @@
 import './App.css';
 import { useState } from 'react';
 
+
 function Game() {
   const boardSize = 3;
-  const [history, setHistory] = useState([Array(boardSize * boardSize).fill(null)]);
+  const [history, setHistory] = useState([{ squares: Array(boardSize * boardSize).fill(null), index: -1 }]);
   const [currentMove, setCurrentMove] = useState(0);
   const [sortDescending, setSortDescending] = useState(false);
-  const xIsNext = currentMove % 2 === 0;
-  const currentSquares = history[currentMove];
 
-  function handlePlay(newSquares) {
-    const nextHistory = [...history.slice(0, currentMove + 1), newSquares];
+  const xIsNext = currentMove % 2 === 0;
+  const currentSquares = history[currentMove].squares;
+
+  function handlePlay(newSquares, index) {
+    const nextHistory = [...history.slice(0, currentMove + 1), { squares: newSquares, index: (index + 1) }];
     setHistory(nextHistory);
     setCurrentMove(nextHistory.length - 1);
   }
@@ -25,8 +27,10 @@ function Game() {
     setSortDescending(sort);
   }
 
-  const moves = history.map((squares, move) => {
-    let description = (move > 0 ? 'Go to move #' + move : 'Go to game start');
+  const moves = history.map((entries, move) => {
+    let row = entries.index % boardSize == 0 ? boardSize : entries.index % boardSize;
+    let col = Math.ceil(entries.index / boardSize);
+    let description = (move > 0 ? ('Go to move #' + move + ' [' + row + ',' + col + ']') : 'Go to game start');
     return (
       <li key={move}>
         {move === currentMove ? (
@@ -68,7 +72,7 @@ function Board({ size, xIsNext, squares, onPlay }) {
     }
     const newSquares = squares.slice();
     newSquares[index] = xIsNext ? 'X' : 'O';
-    onPlay(newSquares);
+    onPlay(newSquares, index);
   }
 
   const group = (items, n) => items.reduce((acc, x, i) => {
